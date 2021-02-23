@@ -1,21 +1,21 @@
 # Worki
 
-**TODO: Add description**
+## Рецепты
 
-## Installation
+создать образ
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `worki` to your list of dependencies in `mix.exs`:
+ docker build -t elixir .
 
-```elixir
-def deps do
-  [
-    {:worki, "~> 0.1.0"}
-  ]
-end
-```
+подключиться и зайти в него
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/worki](https://hexdocs.pm/worki).
+ docker run -i -t <id контейнера> /bin/bash
+
+запустить
+
+ docker run --rm -t elixir
+
+загрузка контейнера на решение
+
+ docker tag elixir stor.highloadcup.ru/rally/shy_beaver
+ docker push stor.highloadcup.ru/rally/shy_beaver
 
