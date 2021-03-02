@@ -39,7 +39,7 @@ defmodule LicSever do
   end
 
   defp get_lic() do
-    case Worki.licenses([]) do
+    case Worki.licenses(CashSever.get_cash()) do
       {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, %{"digAllowed" => _, "digUsed" => _, "id" => _}=lic}  -> lic

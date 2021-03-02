@@ -5,8 +5,8 @@ defmodule Worki.Application do
 
   @lic_pool [
     name: :lic_pool,
-    size: 8,
-    max_overflow: 2
+    size: 10,
+    max_overflow: 0
   ]
 
   defp lic_pool_config() do
@@ -27,7 +27,7 @@ defmodule Worki.Application do
     Logger.info ("Start server... http://#{address}:8000 ")
 
     children = [
-      # {LicSever, []},
+      {CashSever, []},
       :poolboy.child_spec(@lic_pool[:name], lic_pool_config(), []),
       {GameSever, []},
     ]

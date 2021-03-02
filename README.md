@@ -19,15 +19,18 @@
  docker tag elixir stor.highloadcup.ru/rally/shy_beaver
  docker push stor.highloadcup.ru/rally/shy_beaver
 
-li = [0,0,2,0,0,1,0,3]
-0..7
+/explore не требует лицензий
+/dig всегда требует лицензию
+ dig может выдать ['treasureid']
+ и его можно обменять на монеты [id1, id2, id3...]
 
-1 запрос. всего 
-8 -> {0, 7, nil}
-{x1, x2, count} = {0, 7, 6}
+/licenses 
+ [] - бесплатная лицензия - 3 копания
+ [idмонетки] - платная лицензия - 5 копаний
+ активными может быть одновременно только 10 лицензий
 
-{0, 7, nil} 
-{0, 7, 6} +
-{0, 3, ?}, {4, 7, ?} +
-{0, 3, 2}, {4, 7, 6 - 2 = 4}
-{0, 3, 2}, {4, 7, 4}
+
+1..120_000 |> Enum.map(fn(x)-> LicSever.get_license() end)
+
+dig(LicSever.get_license(), x, y, lvl)
+1..1000 |> Enum.map(fn(_)-> Worki.dig(LicSever.get_license(), 0, 0, 1) end); nil

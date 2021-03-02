@@ -101,49 +101,40 @@ defmodule Worki do
     end
   end
 
+  # def game() do
+  #   1..120_000
+  #   |> Enum.map(fn(x)->
+
+  #   end)
+  # end
+
   def game() do
     # 12547 1поток
     # 13767 хитрый ехplore
     # ^ -
-    # 16432
-    Enum.map(0..6, fn(x) ->
-      Enum.map(0..3500, fn(y) ->
-      # Enum.map(0..3500, fn(y) ->
+    # 16432 последовательный explore 512                 (сервер 32347)
+    # 16096 параллельный explore 512 весь ряд (7 кусков) (сервер 32332)
+    # 54316 копаем с платными лицензиями                 (сервер 222042)
+    # 55288 копаем с платными лицензиями посл expl по 512(сервер 190513)
+    # 22793 - по одной с платными                        (сервер 112307)
+    Enum.map(0..3499, fn(x) ->
+      Enum.map(0..3499, fn(y) ->
 
-        x1=x*512
-        x2=x*512 + 512
+        # x1=x*512
+        # x2=x*512+511
 
-        list = Worki.r_explore(x1,x2,y)
+        # list = Worki.r_explore(x1,x2,y)
 
-        # последовательно
-        list
-        |> Enum.map(fn({tx, _, ty, amount}) ->
-          do_dig(tx, ty, 1, amount)
-        end)
-
-        # копаем параллельно
+        # # последовательно
         # list
         # |> Enum.map(fn({tx, _, ty, amount}) ->
-        #   Task.async(Worki, :do_dig, [tx, ty, 1, amount])
+        #   do_dig(tx, ty, 1, amount)
         # end)
-        # |> Enum.map(fn(ref) ->
-        #   Task.await(ref, 60000)
-        # end)
+        amount = clean_explore(x, y, 1, 1)
+        if amount > 0 do
+          do_dig(x, y, 1, amount)
+        end
 
-        # do_explore(x, y, 1, 1)
-        # Task.start(Worki, :do_explore, [x, y, 1, 1])
-        # y1 = y*8
-        # y2 = y*8 + 1
-        # y3 = y*8 + 2
-        # y4 = y*8 + 3
-        # ref1 = Task.async(Worki, :do_explore, [x, y1, 1, 1])
-        # ref2 = Task.async(Worki, :do_explore, [x, y2, 1, 1])
-        # ref3 = Task.async(Worki, :do_explore, [x, y3, 1, 1])
-        # ref4 = Task.async(Worki, :do_explore, [x, y4, 1, 1])
-        # Task.await(ref1, 60000)
-        # Task.await(ref2, 60000)
-        # Task.await(ref3, 60000)
-        # Task.await(ref4, 60000)
       end)
     end)
 
@@ -175,11 +166,12 @@ defmodule Worki do
   # def cash(treasure),
   #   do: post("/cash", treasure)
   def cash(treasure) do
-    case res = post("/cash", treasure) do
+    case post("/cash", treasure) do
       {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, body}  ->
             # Logger.debug "cash body=#{inspect body}"
+            CashSever.put_cash(body)
             :ok
           _else ->
             :timer.sleep(100)
