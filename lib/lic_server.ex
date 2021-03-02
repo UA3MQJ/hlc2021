@@ -4,17 +4,20 @@ defmodule LicSever do
 
   # Client
   def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+    GenServer.start_link(__MODULE__, [])
   end
 
   def get_license() do
-    GenServer.call(__MODULE__, :get_license, 60000)
+    # GenServer.call(__MODULE__, :get_license, 60000)
+    :poolboy.transaction(:lic_pool, fn pid ->
+      GenServer.call(pid, :get_license, 60000)
+    end)
   end
 
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "LicServer init"
+    Logger.info "LicServer init pid=#{inspect self()}"
     {:ok, nil}
   end
 
@@ -37,7 +40,7 @@ defmodule LicSever do
 
   defp get_lic() do
     case Worki.licenses([]) do
-      {:ok, response} ->
+      {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, %{"digAllowed" => _, "digUsed" => _, "id" => _}=lic}  -> lic
           _else ->
