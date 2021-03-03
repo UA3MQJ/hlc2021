@@ -65,7 +65,7 @@ defmodule Worki do
   def clean_explore(posX, posY, sizeX, sizeY) do
     # Logger.debug ">> explore(#{posX}, #{posY}, #{sizeX}, #{sizeY}) "
     case explore(posX, posY, sizeX, sizeY) do
-      {:ok, %{status_code: 200} = response} ->
+      %{status_code: 200} = response ->
         case Jason.decode(response.body) do
           {:ok, body}  ->
             %{"amount" => amount, "area" => _area} = body
@@ -117,6 +117,7 @@ defmodule Worki do
     # 54316 копаем с платными лицензиями                 (сервер 222042)
     # 55288 копаем с платными лицензиями посл expl по 512(сервер 190513)
     # 22793 - по одной с платными                        (сервер 112307)
+    # 23756 - по одной платными но не запоминая монетки  (сервер)
     Enum.map(0..3499, fn(x) ->
       Enum.map(0..3499, fn(y) ->
 
@@ -185,11 +186,20 @@ defmodule Worki do
 
   # Jason.decode(response.body)
 
+  # defp post(path, body) do
+  #   headers = [{"Content-Type", "application/json"}]
+  #   json_body = Jason.encode!(body)
+  #   # json_body = :jiffy.encode(body)
+  #   url = :persistent_term.get(:url)
+  #   HTTPoison.post(url<>path, json_body, headers, [])
+  # end
+
   defp post(path, body) do
-    headers = [{"Content-Type", "application/json"}]
-    json_body = Jason.encode!(body)
+    headers = ["Content-Type": "application/json"]
+    # json_body = Jason.encode!(body)
+    json_body = :jiffy.encode(body)
     url = :persistent_term.get(:url)
-    HTTPoison.post(url<>path, json_body, headers)
+    HTTPotion.post(url<>path, [body: json_body, headers: headers])
   end
 
   defp get(path) do
@@ -198,4 +208,20 @@ defmodule Worki do
     HTTPoison.get(url<>path, headers)
   end
 
+  def perf do
+    # 00:54:20.673 [debug] perf time time = 5807 ms
+    # time1 = :os.system_time(:millisecond)
+    # 1..1000 |> Enum.map(fn(x) -> Worki.clean_explore(x, 0, 1, 1) end )
+    # time2 = :os.system_time(:millisecond)
+
+    # Logger.debug "perf time time = #{time2 - time1} ms"
+
+    time1 = :os.system_time(:millisecond)
+    1..1000
+    |> Enum.map(fn(x) -> Task.async(Worki, :clean_explore, [x, 0, 1, 1]) end )
+    |> Enum.map(fn(ref) -> Task.await(ref, 60000) end )
+    time2 = :os.system_time(:millisecond)
+
+    Logger.debug "perf time time = #{time2 - time1} ms"
+  end
 end

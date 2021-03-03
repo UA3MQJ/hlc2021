@@ -34,3 +34,8 @@
 
 dig(LicSever.get_license(), x, y, lvl)
 1..1000 |> Enum.map(fn(_)-> Worki.dig(LicSever.get_license(), 0, 0, 1) end); nil
+
+time1 = :os.system_time(:millisecond)
+1..100 |> Enum.map(fn(x) -> Worki.clean_explore(x, 0, 1, 1) end )
+
+wrk -t500 -c1000 -d160s -s ./script.lua http://localhost:8000/explore
