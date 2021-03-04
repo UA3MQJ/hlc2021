@@ -4,12 +4,15 @@ defmodule Worki do
   def do_dig(_, _, 11, _), do: :ok
   def do_dig(_, _, _, 0), do: :ok
   def do_dig(x, y, lvl, count) do
-    res = dig(LicServer.get_license(), x, y, lvl)
+    {lic_id, pid} = LicServer.get_license()
+    res = dig(lic_id, x, y, lvl)
     # Logger.debug ">>> do_dig  res=#{inspect res}\r\n x=#{inspect x} y=#{inspect y} lvl=#{inspect lvl} count=#{inspect count}"
     case res do
       {:ok, %{status_code: 404}} -> # копаем дальше
+        WRServer.release(:lic_pool, pid)
         do_dig(x, y, lvl+1, count)
       {:ok, %{status_code: 200} = response} -> # выкопали
+        WRServer.release(:lic_pool, pid)
         case Jason.decode(response.body) do
           {:ok, [treasure]}  ->
             treasure2cash(treasure)
@@ -118,29 +121,32 @@ defmodule Worki do
     # 55288 копаем с платными лицензиями посл expl по 512(сервер 190513)
     # 22793 - по одной с платными                        (сервер 112307)
     # 23756 - по одной платными но не запоминая монетки  (сервер 114099)
-    # 16082 - 10dig воркеров с блокировкой /expore       (сервер 217244)
+    # 16082 - 10dig воркеров с блокировкой 1x1/expore    (сервер 217244)
+    # 51652 - 4dig умный explore - 3499                  (сервер 378099)
+    # 20611! - починил lic. синхр lic. 10dig, expl3499   (сервер 573087)
 
-    Enum.map(0..0, fn(x) ->
+    Enum.map(0..0, fn(_x) ->
       Enum.map(0..3499, fn(y) ->
 
-        # x1=0
-        # x2=3499
+        x1=0
+        x2=3499
 
-        # list = Worki.r_explore(x1,x2,y)
+        list = Worki.r_explore(x1,x2,y)
 
-        # # последовательно
-        # list
-        # |> Enum.map(fn({tx, _, ty, amount}) ->
-        #   # do_dig(tx, ty, 1, amount)
-        #   Task.start(Worki, :do_dig, [tx, ty, 1, amount])
-        # end)
+        # последовательно
+        list
+        |> Enum.map(fn({tx, _, ty, amount}) ->
+          # do_dig(tx, ty, 1, amount)
+          # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
+          DigServer.do_dig(tx, ty, 1, amount)
+        end)
 
-        # вообще по очереди
-        amount = clean_explore(x, y, 1, 1)
-        if amount > 0 do
-          # do_dig(x, y, 1, amount)
-          DigServer.do_dig(x, y, 1, amount)
-        end
+        # # вообще по очереди
+        # amount = clean_explore(x, y, 1, 1)
+        # if amount > 0 do
+        #   # do_dig(x, y, 1, amount)
+        #   DigServer.do_dig(x, y, 1, amount)
+        # end
 
       end)
     end)
