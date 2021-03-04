@@ -4,7 +4,7 @@ defmodule Worki do
   def do_dig(_, _, 11, _), do: :ok
   def do_dig(_, _, _, 0), do: :ok
   def do_dig(x, y, lvl, count) do
-    res = dig(LicSever.get_license(), x, y, lvl)
+    res = dig(LicServer.get_license(), x, y, lvl)
     # Logger.debug ">>> do_dig  res=#{inspect res}\r\n x=#{inspect x} y=#{inspect y} lvl=#{inspect lvl} count=#{inspect count}"
     case res do
       {:ok, %{status_code: 404}} -> # копаем дальше
@@ -65,18 +65,18 @@ defmodule Worki do
   def clean_explore(posX, posY, sizeX, sizeY) do
     # Logger.debug ">> explore(#{posX}, #{posY}, #{sizeX}, #{sizeY}) "
     case explore(posX, posY, sizeX, sizeY) do
-      %{status_code: 200} = response ->
+      {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, body}  ->
             %{"amount" => amount, "area" => _area} = body
             # Logger.debug ">>>>> explore(#{posX}, #{posY}, #{sizeX}, #{sizeY}) -> amount = #{amount}"
             amount
           _else ->
-            :timer.sleep(100)
+            # :timer.sleep(100)
             clean_explore(posX, posY, sizeX, sizeY)
         end
       _some_other_error->
-        :timer.sleep(100)
+        # :timer.sleep(100)
         clean_explore(posX, posY, sizeX, sizeY)
     end
   end
@@ -88,15 +88,15 @@ defmodule Worki do
           {:ok, body}  ->
             %{"amount" => amount, "area" => _area} = body
             # if amount>2 do
-              # Task.start(Worki, :do_dig, [posX, posY, 1, amount])
-              do_dig(posX, posY, 1, amount)
+              Task.start(Worki, :do_dig, [posX, posY, 1, amount])
+              # do_dig(posX, posY, 1, amount)
             # end
           _else ->
-            :timer.sleep(100)
+            # :timer.sleep(100)
             do_explore(posX, posY, sizeX, sizeY)
         end
       _some_other_error->
-        :timer.sleep(100)
+        # :timer.sleep(100)
         do_explore(posX, posY, sizeX, sizeY)
     end
   end
@@ -117,23 +117,29 @@ defmodule Worki do
     # 54316 копаем с платными лицензиями                 (сервер 222042)
     # 55288 копаем с платными лицензиями посл expl по 512(сервер 190513)
     # 22793 - по одной с платными                        (сервер 112307)
-    # 23756 - по одной платными но не запоминая монетки  (сервер)
-    Enum.map(0..3499, fn(x) ->
+    # 23756 - по одной платными но не запоминая монетки  (сервер 114099)
+    # 16082 - 10dig воркеров с блокировкой /expore       (сервер 217244)
+
+    Enum.map(0..0, fn(x) ->
       Enum.map(0..3499, fn(y) ->
 
-        # x1=x*512
-        # x2=x*512+511
+        # x1=0
+        # x2=3499
 
         # list = Worki.r_explore(x1,x2,y)
 
         # # последовательно
         # list
         # |> Enum.map(fn({tx, _, ty, amount}) ->
-        #   do_dig(tx, ty, 1, amount)
+        #   # do_dig(tx, ty, 1, amount)
+        #   Task.start(Worki, :do_dig, [tx, ty, 1, amount])
         # end)
+
+        # вообще по очереди
         amount = clean_explore(x, y, 1, 1)
         if amount > 0 do
-          do_dig(x, y, 1, amount)
+          # do_dig(x, y, 1, amount)
+          DigServer.do_dig(x, y, 1, amount)
         end
 
       end)
@@ -172,35 +178,28 @@ defmodule Worki do
         case Jason.decode(response.body) do
           {:ok, body}  ->
             # Logger.debug "cash body=#{inspect body}"
-            CashSever.put_cash(body)
+            CashServer.put_cash(body)
             :ok
           _else ->
-            :timer.sleep(100)
+            # :timer.sleep(100)
             cash(treasure)
         end
       _some_other_error->
-        :timer.sleep(100)
+        # :timer.sleep(100)
         cash(treasure)
     end
   end
 
   # Jason.decode(response.body)
 
-  # defp post(path, body) do
-  #   headers = [{"Content-Type", "application/json"}]
-  #   json_body = Jason.encode!(body)
-  #   # json_body = :jiffy.encode(body)
-  #   url = :persistent_term.get(:url)
-  #   HTTPoison.post(url<>path, json_body, headers, [])
-  # end
-
   defp post(path, body) do
-    headers = ["Content-Type": "application/json"]
-    # json_body = Jason.encode!(body)
-    json_body = :jiffy.encode(body)
+    headers = [{"Content-Type", "application/json"}]
+    json_body = Jason.encode!(body)
+    # json_body = :jiffy.encode(body)
     url = :persistent_term.get(:url)
-    HTTPotion.post(url<>path, [body: json_body, headers: headers])
+    HTTPoison.post(url<>path, json_body, headers, [])
   end
+
 
   defp get(path) do
     headers = [{"Content-Type", "application/json"}]
@@ -216,12 +215,22 @@ defmodule Worki do
 
     # Logger.debug "perf time time = #{time2 - time1} ms"
 
-    time1 = :os.system_time(:millisecond)
-    1..1000
-    |> Enum.map(fn(x) -> Task.async(Worki, :clean_explore, [x, 0, 1, 1]) end )
-    |> Enum.map(fn(ref) -> Task.await(ref, 60000) end )
-    time2 = :os.system_time(:millisecond)
+    # time1 = :os.system_time(:millisecond)
+    # 1..1000
+    # |> Enum.map(fn(x) -> Task.async(Worki, :clean_explore, [x, 0, 1, 1]) end )
+    # |> Enum.map(fn(ref) -> Task.await(ref, 60000) end )
+    # time2 = :os.system_time(:millisecond)
 
-    Logger.debug "perf time time = #{time2 - time1} ms"
+    # Logger.debug "perf time time = #{time2 - time1} ms"
+
+    # time1 = :os.system_time(:millisecond)
+    # res = 1..100000
+    # |> Enum.map(fn(x) -> Task.async(Worki, :get_t, ["http://localhost:4000/explore"]) end )
+    # |> Enum.map(fn(ref) -> Task.await(ref, 60000) end )
+
+    # # Logger.debug "res = #{inspect res}"
+    # time2 = :os.system_time(:millisecond)
+
+    # Logger.debug "perf time time = #{time2 - time1} ms"
   end
 end

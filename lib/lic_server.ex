@@ -1,4 +1,4 @@
-defmodule LicSever do
+defmodule LicServer do
   use GenServer
   require Logger
 
@@ -10,7 +10,7 @@ defmodule LicSever do
   def get_license() do
     # GenServer.call(__MODULE__, :get_license, 60000)
     :poolboy.transaction(:lic_pool, fn pid ->
-      GenServer.call(pid, :get_license, 60000)
+      GenServer.call(pid, :get_license, 120000)
     end)
   end
 
@@ -39,16 +39,16 @@ defmodule LicSever do
   end
 
   defp get_lic() do
-    case Worki.licenses(CashSever.get_cash()) do
+    case Worki.licenses(CashServer.get_cash()) do
       {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, %{"digAllowed" => _, "digUsed" => _, "id" => _}=lic}  -> lic
           _else ->
-            :timer.sleep(100)
+            # :timer.sleep(100)
             get_lic()
         end
       _error ->
-        :timer.sleep(100)
+        # :timer.sleep(100)
         get_lic()
     end
   end

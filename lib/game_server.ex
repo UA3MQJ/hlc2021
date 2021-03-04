@@ -1,4 +1,4 @@
-defmodule GameSever do
+defmodule GameServer do
   use GenServer
   require Logger
 
@@ -10,19 +10,19 @@ defmodule GameSever do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "GameSever init"
+    Logger.info "GameServer init"
     send(self(), :postinit)
     {:ok, []}
   end
 
   @impl true
   def handle_info(:postinit, state) do
-    Logger.info("GameSever postinit")
+    Logger.info("GameServer postinit")
     Logger.info("health_check")
     wait_health_check()
     Logger.info("health_check - ok")
     :timer.sleep(100)
-    # Task.start(Worki, :game, [])
+    Task.start(Worki, :game, [])
 
     {:noreply, state}
   end
@@ -32,7 +32,7 @@ defmodule GameSever do
       {:ok, _} -> :ok
       _else ->
         :timer.sleep(100)
-        wait_health_check
+        wait_health_check()
     end
   end
 

@@ -30,12 +30,17 @@
  активными может быть одновременно только 10 лицензий
 
 
-1..120_000 |> Enum.map(fn(x)-> LicSever.get_license() end)
+1..120_000 |> Enum.map(fn(x)-> LicServer.get_license() end)
 
-dig(LicSever.get_license(), x, y, lvl)
-1..1000 |> Enum.map(fn(_)-> Worki.dig(LicSever.get_license(), 0, 0, 1) end); nil
+dig(LicServer.get_license(), x, y, lvl)
+1..1000 |> Enum.map(fn(_)-> Worki.dig(LicServer.get_license(), 0, 0, 1) end); nil
 
 time1 = :os.system_time(:millisecond)
 1..100 |> Enum.map(fn(x) -> Worki.clean_explore(x, 0, 1, 1) end )
 
-wrk -t500 -c1000 -d160s -s ./script.lua http://localhost:8000/explore
+wrk -t500 -c1000 -d10s -s ./script.lua http://localhost:8000/explore
+
+wrk -t500 -c1000 -d10s  http://localhost:4000/explore
+
+1..4 |> Enum.map(fn(_)-> Task.async(TestServer, :get_license, []) end) |> Enum.map(fn(ref)-> Task.await(ref) end)
+
