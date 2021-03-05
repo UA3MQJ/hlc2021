@@ -3,9 +3,14 @@ defmodule Worki.Application do
 
   require Logger
 
+  # 1-4541 2-9907 3-14306 4-11528
+  # 5-15607 6-13309 7-13653 8-15813
+  # 9-13541 10-13780 11-15813 12-14931
+  # 13-14430 50-15926
+
   @dig_pool [
     name: :dig_pool,
-    size: 10,
+    size: 50,
     max_overflow: 0
   ]
 
