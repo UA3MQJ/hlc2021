@@ -18,9 +18,10 @@ defmodule GameServer do
   @impl true
   def handle_info(:postinit, state) do
     Logger.info("GameServer postinit")
-    Logger.info("health_check")
+    Logger.info("GameServer health_check")
     wait_health_check()
-    Logger.info("health_check - ok")
+    Logger.info("GameServer health_check - ok")
+    :persistent_term.put(:rdy, true)
     :timer.sleep(100)
     Task.start(Worki, :game, [])
 

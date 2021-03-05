@@ -4,24 +4,34 @@ defmodule Worki do
   def do_dig(_, _, 11, _), do: :ok
   def do_dig(_, _, _, 0), do: :ok
   def do_dig(x, y, lvl, count) do
-    {lic_id, pid} = LicServer.get_license()
-    res = dig(lic_id, x, y, lvl)
-    # Logger.debug ">>> do_dig  res=#{inspect res}\r\n x=#{inspect x} y=#{inspect y} lvl=#{inspect lvl} count=#{inspect count}"
-    case res do
-      {:ok, %{status_code: 404}} -> # копаем дальше
-        WRServer.release(:lic_pool, pid)
-        do_dig(x, y, lvl+1, count)
-      {:ok, %{status_code: 200} = response} -> # выкопали
-        WRServer.release(:lic_pool, pid)
-        case Jason.decode(response.body) do
-          {:ok, [treasure]}  ->
-            treasure2cash(treasure)
-            # Logger.debug ">>> do_dig  treasure=#{inspect treasure}"
-            do_dig(x, y, lvl+1, count-1)
+
+    case LicServer.get_license() do
+      :no_lics ->
+        Process.sleep(100)
+        do_dig(x, y, lvl, count)
+      lic_id ->
+        # Logger.debug ">>> do_dig  lic_id=#{lic_id}"
+        res = dig(lic_id, x, y, lvl)
+        # Logger.debug ">>> do_dig  res=#{inspect res}\r\n x=#{inspect x} y=#{inspect y} lvl=#{inspect lvl} count=#{inspect count}"
+        case res do
+          {:ok, %{status_code: 404}} -> # копаем дальше
+            LicServer.return_license(lic_id)
+            do_dig(x, y, lvl+1, count)
+          {:ok, %{status_code: 200} = response} -> # выкопали
+            LicServer.return_license(lic_id)
+            case Jason.decode(response.body) do
+              {:ok, [treasure]}  ->
+                treasure2cash(treasure)
+                # Logger.debug ">>> do_dig  treasure=#{inspect treasure}"
+                do_dig(x, y, lvl+1, count-1)
+              _else ->
+                # Logger.debug ">>> do_dig error1"
+                :ok
+            end
           _else ->
-            :ok
+            # Logger.debug ">>> do_dig error2"
+            :ok # какие-то ошибки
         end
-      _else -> :ok # какие-то ошибки
     end
   end
 
@@ -104,13 +114,6 @@ defmodule Worki do
     end
   end
 
-  # def game() do
-  #   1..120_000
-  #   |> Enum.map(fn(x)->
-
-  #   end)
-  # end
-
   def game() do
     # 12547 1поток
     # 13767 хитрый ехplore
@@ -129,6 +132,7 @@ defmodule Worki do
     # 167485 - кусками по 32 параллельно  4 таска        (сервер 172207)
     # ? -    - попытка вернуть по 16                     (сервер 760303)
     # ? -  еще попытка 0..218,0..3499                    (сервер 739642)
+    # 157724 - новый сервер лицензий кусками по 16, 10dig(сервер 301999)
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->

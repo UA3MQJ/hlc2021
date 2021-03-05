@@ -3,12 +3,6 @@ defmodule Worki.Application do
 
   require Logger
 
-  @lic_pool [
-    name: :lic_pool,
-    size: 10,
-    max_overflow: 0
-  ]
-
   @dig_pool [
     name: :dig_pool,
     size: 10,
@@ -20,15 +14,6 @@ defmodule Worki.Application do
     size: 2,
     max_overflow: 0
   ]
-
-  defp lic_pool_config() do
-    [
-      {:name, {:local, @lic_pool[:name]}},
-      {:worker_module, LicServer},
-      {:size, @lic_pool[:size]},
-      {:max_overflow, @lic_pool[:max_overflow]}
-    ]
-  end
 
   defp dig_pool_config() do
     [
@@ -53,13 +38,14 @@ defmodule Worki.Application do
 
     address = System.get_env("ADDRESS", "localhost")
     :persistent_term.put(:url, "http://#{address}:8000")
+    :persistent_term.put(:rdy, false)
 
     Logger.info ("Start server... http://#{address}:8000 ")
 
     children = [
+      {LicServer, []},
       {CashServer, []},
       {WRServer, []},
-      :poolboy.child_spec(@lic_pool[:name], lic_pool_config(), []),
       :poolboy.child_spec(@test_pool[:name], test_pool_config(), []),
       :poolboy.child_spec(@dig_pool[:name], dig_pool_config(), []),
       {GameServer, []},
