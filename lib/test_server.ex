@@ -20,14 +20,14 @@ defmodule TestServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.debug "TestServer init pid=#{inspect self()}"
+    # Logger.debug "TestServer init pid=#{inspect self()}"
     {:ok, nil}
   end
 
 
   @impl true
   def handle_cast(:get_license, state) do
-    Logger.debug "TestServer handle_cast pid=#{inspect self()}"
+    # Logger.debug "TestServer handle_cast pid=#{inspect self()}"
     :timer.sleep(10000)
 
     WRServer.release(:test_pool, self())

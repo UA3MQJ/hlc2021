@@ -18,7 +18,7 @@ defmodule CashServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "CashServer init pid=#{inspect self()}"
+    # Logger.info "CashServer init pid=#{inspect self()}"
     {:ok, {0, 0}}
   end
 

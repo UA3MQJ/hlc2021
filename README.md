@@ -44,3 +44,5 @@ wrk -t500 -c1000 -d10s  http://localhost:4000/explore
 
 1..4 |> Enum.map(fn(_)-> Task.async(TestServer, :get_license, []) end) |> Enum.map(fn(ref)-> Task.await(ref) end)
 
+:erlang.exit(:erlang.whereis(:dig_pool), :kill)
+

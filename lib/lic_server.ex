@@ -24,7 +24,7 @@ defmodule LicServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "LicServer init pid=#{inspect self()}"
+    # Logger.info "LicServer init pid=#{inspect self()}"
     {:ok, nil}
   end
 

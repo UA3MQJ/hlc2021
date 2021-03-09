@@ -49,7 +49,7 @@ defmodule Worki.Application do
   end
 
   def start(_type, _args) do
-    Logger.info ("Start server...")
+    # Logger.info ("Start server...")
 
     address = System.get_env("ADDRESS", "localhost")
     :persistent_term.put(:url, "http://#{address}:8000")

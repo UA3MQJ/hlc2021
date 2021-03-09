@@ -75,11 +75,13 @@ defmodule Worki do
             # Logger.debug ">>>>> explore(#{posX}, #{posY}, #{sizeX}, #{sizeY}) -> amount = #{amount}"
             amount
           _else ->
-            # :timer.sleep(100)
+            # Logger.debug ">>>>> clean_explore err1"
+            :timer.sleep(100)
             clean_explore(posX, posY, sizeX, sizeY)
         end
-      _some_other_error->
-        # :timer.sleep(100)
+      error->
+        # Logger.debug ">>>>> clean_explore error2=#{inspect error}"
+        :timer.sleep(100)
         clean_explore(posX, posY, sizeX, sizeY)
     end
   end
@@ -130,7 +132,7 @@ defmodule Worki do
     # ? -    - попытка вернуть по 16                     (сервер 760303)
     # ? -  еще попытка 0..218,0..3499                    (сервер 739642)
 
-    Enum.map(0..218, fn(x) ->
+    Enum.map(0..217, fn(x) ->  #!!!
       Enum.map(0..3499, fn(y) ->
 
         x1=x*16
@@ -248,5 +250,36 @@ defmodule Worki do
     # time2 = :os.system_time(:millisecond)
 
     # Logger.debug "perf time time = #{time2 - time1} ms"
+
+
+    # explore 1x1 rps = 250.5
+    # explore 23x1 rps = 247.988
+    # explore 241x1 rps = 196.196
+    # explore 265x1 rps = 160.32
+    # explore 483x1 rps = 160.32
+    # explore 507x1 rps = 172.197
+
+    # time2-time1
+    500..1000
+    |> Enum.map(fn(size) ->
+      time1 = :os.system_time(:millisecond)
+      1..1000
+      |> Enum.take_while(fn(x) ->
+        Worki.clean_explore(Enum.random(0..3000), Enum.random(0..3000), size, 1)
+        # Process.sleep(10)
+
+        time2 = :os.system_time(:millisecond)
+        # Logger.debug "(time2-time1) = #{inspect (time2-time1)}"
+        condition = (time2-time1) > 1000
+        if condition do
+          t=x/1000*(time2-time1)
+          Logger.debug "explore #{size}x1 rps = #{inspect t}"
+        end
+
+        !condition
+      end)
+    end)
+
+    :ok
   end
 end
