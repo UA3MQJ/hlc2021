@@ -20,7 +20,7 @@ defmodule DigServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "DigServer init pid=#{inspect self()}"
+    # Logger.info "DigServer init pid=#{inspect self()}"
     {:ok, nil}
   end
 
