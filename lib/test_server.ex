@@ -20,7 +20,7 @@ defmodule TestServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.debug "TestServer init pid=#{inspect self()}"
+    # Logger.debug "TestServer init pid=#{inspect self()}"
     {:ok, nil}
   end
 

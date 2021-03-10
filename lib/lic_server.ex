@@ -26,7 +26,7 @@ defmodule LicServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "LicServer init pid=#{inspect self()}"
+    # Logger.info "LicServer init pid=#{inspect self()}"
     :ets.new(:lics, [:set, :public, :named_table])
     send(self(), :postinit)
     {:ok, nil}
@@ -34,8 +34,8 @@ defmodule LicServer do
 
   @impl true
   def handle_info(:postinit, state) do
-    Logger.info("LicServer postinit")
-    Logger.info("LicServer wait health_check")
+    # Logger.info("LicServer postinit")
+    # Logger.info("LicServer wait health_check")
     wait_health_check()
     Logger.info("LicServer health_check - ok")
     # Task.start(Worki, :game, [])

@@ -22,6 +22,7 @@ defmodule Worki do
             case Jason.decode(response.body) do
               {:ok, [treasure]}  ->
                 treasure2cash(treasure)
+                Worki.cnt_inc(:digged)
                 # Logger.debug ">>> do_dig  treasure=#{inspect treasure}"
                 do_dig(x, y, lvl+1, count-1)
               _else ->
@@ -253,5 +254,29 @@ defmodule Worki do
     # time2 = :os.system_time(:millisecond)
 
     # Logger.debug "perf time time = #{time2 - time1} ms"
+  end
+
+  # cnt_pt_incr(Counter) ->
+  #   counters:add(persistent_term:get({?MODULE,Counter}),1,1).
+
+  # cnt_pt_read(Counter) ->
+  #   counters:get(persistent_term:get({?MODULE,Counter}),1).
+
+  def cnt_new(counter) do
+    ref = :counters.new(1,[:atomics])
+    :persistent_term.put(counter, ref)
+    ref
+  end
+
+  def cnt_read(counter) do
+    :counters.get(:persistent_term.get(counter), 1)
+  end
+
+  def cnt_inc(counter) do
+    :counters.add(:persistent_term.get(counter), 1, 1)
+  end
+
+  def cnt_dec(counter) do
+    :counters.sub(:persistent_term.get(counter), 1, 1)
   end
 end

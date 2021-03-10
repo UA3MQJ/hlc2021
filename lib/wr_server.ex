@@ -14,7 +14,7 @@ defmodule WRServer do
   # Server (callbacks)
   @impl true
   def init(_state) do
-    Logger.info "WRServer init"
+    # Logger.info "WRServer init"
     {:ok, nil}
   end
 
