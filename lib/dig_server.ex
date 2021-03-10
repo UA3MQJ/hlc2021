@@ -8,22 +8,12 @@ defmodule DigServer do
   end
 
   def do_dig(x, y, lvl, count) do
-    dig_count = Worki.cnt_read(:dig_workers)
-    dig_max   = :persistent_term.get(:dig_max)
-
-    case dig_count>=dig_max do
-      true ->
+    case :poolboy.checkout(:dig_pool, false) do
+      :full ->
         Process.sleep(100)
         do_dig(x, y, lvl, count)
-      false ->
-        case :poolboy.checkout(:dig_pool, false) do
-          :full ->
-            Process.sleep(100)
-            do_dig(x, y, lvl, count)
-          worker_pid ->
-            Worki.cnt_inc(:dig_workers)
-            GenServer.cast(worker_pid, {:do_dig, x, y, lvl, count})
-        end
+      worker_pid ->
+        GenServer.cast(worker_pid, {:do_dig, x, y, lvl, count})
     end
   end
 
@@ -31,7 +21,6 @@ defmodule DigServer do
   @impl true
   def init(_state) do
     # Logger.info "DigServer init pid=#{inspect self()}"
-    Worki.cnt_new(:dig_workers)
     Worki.cnt_new(:digged)
     {:ok, nil}
   end
@@ -41,7 +30,6 @@ defmodule DigServer do
     Worki.do_dig(x, y, lvl, count)
 
     WRServer.release(:dig_pool, self())
-    Worki.cnt_dec(:dig_workers)
     {:noreply, state}
   end
 

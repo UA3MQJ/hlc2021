@@ -10,7 +10,7 @@ defmodule Worki.Application do
 
   @dig_pool [
     name: :dig_pool,
-    size: 50,
+    size: 10,
     max_overflow: 0
   ]
 
@@ -44,8 +44,6 @@ defmodule Worki.Application do
     address = System.get_env("ADDRESS", "localhost")
     :persistent_term.put(:url, "http://#{address}:8000")
     :persistent_term.put(:rdy, false)
-
-    :persistent_term.put(:dig_max, 17)
 
     Logger.info ("Start server... http://#{address}:8000 ")
 

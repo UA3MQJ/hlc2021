@@ -86,31 +86,12 @@ defmodule LicServer do
         :ets.update_counter(:lics, id, {3, 1})
         {:reply, id, state}
     end
-    # lic = case state do
-    #   nil -> get_lic()
-    #   _else -> state
-    # end
-    # %{"digAllowed" => digAllowed, "digUsed" => digUsed, "id" => id} = lic
-    # # Logger.debug ">> lic=#{inspect lic}"
-    # case digAllowed==(digUsed) do
-    #   true ->
-    #     # release after dig
-    #     # WRServer.release(:lic_pool, self())
-    #     new_lic = get_lic()
-    #     %{"digAllowed" => digAllowed, "digUsed" => digUsed, "id" => id} = new_lic
-    #     # Logger.debug ">>> lic pid=#{inspect self()} lic=#{inspect new_lic} new_lic id=#{inspect id}"
-    #     {:reply, {id, self()}, %{"digAllowed" => digAllowed, "digUsed" => digUsed+1, "id" => id}}
-    #   false ->
-    #     # WRServer.release(:lic_pool, self())
-    #     # Logger.debug ">>> lic pid=#{inspect self()} lic=#{inspect lic} old_lic id=#{inspect id}"
-    #     {:reply, {id, self()}, %{"digAllowed" => digAllowed, "digUsed" => digUsed+1, "id" => id}}
-    # end
   end
 
   @impl true
   def handle_cast({:return_license, id}, state) do
     :ets.update_counter(:lics, id, {4, 1})
-    [{id, digAllowed, gave, returned}] = :ets.lookup(:lics, id)
+    [{_id, digAllowed, gave, returned}] = :ets.lookup(:lics, id)
     if (digAllowed==gave)and(gave==(returned)) do
       new_lic = get_lic()
       %{"digAllowed" => n_digAllowed, "digUsed" => n_digUsed, "id" => n_id} = new_lic
@@ -118,18 +99,6 @@ defmodule LicServer do
       :ets.insert(:lics, {n_id, n_digAllowed, n_digUsed, 0})
     end
 
-    # case :ets.lookup(:lics, id) do
-    #   [{id, digAllowed, gave, returned}] ->
-    #     # :ets.insert(:lics, {id, digAllowed, gave, returned+1})
-    #     :ets.update_counter(:lics, id, {4, 1})
-    #     if (digAllowed==gave)and(gave==(returned+1)) do
-    #       :ets.delete(:lics, id)
-    #       %{"digAllowed" => n_digAllowed, "digUsed" => n_digUsed, "id" => n_id} = get_lic()
-    #       # id, digAllowed, gave, returned
-    #       :ets.insert(:lics, {n_id, n_digAllowed, n_digUsed, 0})
-    #     end
-    #   _else -> :ok
-    # end
     {:noreply, state}
   end
 
@@ -138,15 +107,15 @@ defmodule LicServer do
       {:ok, %{status_code: 200} = response} ->
         case Jason.decode(response.body) do
           {:ok, %{"digAllowed" => _, "digUsed" => _, "id" => _}=lic}  ->
-            # Logger.debug ">>>>>> lic pid=#{inspect self()} lic=#{inspect lic}"
+            Logger.debug ">>>>>> lic pid=#{inspect self()} lic=#{inspect lic}"
             lic
           error ->
-            # Logger.debug ">>>>>> lic error1 error=#{inspect error}"
+            Logger.debug ">>>>>> lic error1 error=#{inspect error}"
             :timer.sleep(100)
             get_lic()
         end
       error ->
-        # Logger.debug ">>>>>> lic error2 error=#{inspect error}"
+        Logger.debug ">>>>>> lic error2 error=#{inspect error}"
         :timer.sleep(100)
         get_lic()
     end
