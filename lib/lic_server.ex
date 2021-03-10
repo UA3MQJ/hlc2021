@@ -13,8 +13,12 @@ defmodule LicServer do
     GenServer.call(__MODULE__, :get_license, 60_000)
   end
 
-  def return_license(id) do
-    GenServer.cast(__MODULE__, {:return_license, id})
+  def return_license(lic) do
+    GenServer.cast(__MODULE__, {:return_license, lic})
+  end
+
+  def add_license(lic) do
+    GenServer.cast(__MODULE__, {:add_lic, lic})
   end
 
   # Server (callbacks)
@@ -31,23 +35,12 @@ defmodule LicServer do
     wait_health_check()
     Logger.info("LicServer health_check - ok")
 
-    q_lic = 1..@active_lic_count
-      |> Enum.reduce(:queue.new(), fn(_, acc)->
-        %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => id} = get_lic()
-        # Logger.debug "*** #{id}"
-        # id, digAllowed, gave, returned
-        new_acc = 1..digAllowed
-        |> Enum.reduce(acc, fn(_, acc)->
-          :queue.in({id, digAllowed}, acc)
-        end)
-
-        new_acc
+    1..@active_lic_count
+      |> Enum.map(fn(_)->
+        Task.start(LicServer, :get_lic_task, [])
       end)
 
-    # Logger.debug ">>> q_lic=#{inspect q_lic}"
-    map_out = %{}
-
-    {:noreply, {q_lic, map_out}}
+    {:noreply, {:queue.new(), %{}}}
   end
 
   defp wait_health_check() do
@@ -76,22 +69,27 @@ defmodule LicServer do
 
     case count==(lic_used_count+1) do
       true ->
-        %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => new_id} = get_lic()
-        # Logger.debug "<<< #{id} [#{lic_used_count+1}/#{count}]"
-        # Logger.debug "*** #{new_id}"
-        # id, digAllowed, gave, returned
-        new_q_lic = 1..digAllowed
-        |> Enum.reduce(q_lic, fn(_, acc)->
-          :queue.in({new_id, digAllowed}, acc)
-        end)
-
-        # Logger.debug ">>>> get new license new_state=#{inspect {new_q_lic, new_map_out}}"
-        {:noreply, {new_q_lic, new_map_out}}
+        Task.start(LicServer, :get_lic_task, [])
+        new2_map_out = Map.drop(new_map_out, [id])
+        {:noreply, {q_lic, new2_map_out}}
       false ->
-        # Logger.debug "<<< #{id} [#{lic_used_count+1}/#{count}]"
-        # Logger.debug ">>>> new_state=#{inspect {q_lic, new_map_out}}"
         {:noreply, {q_lic, new_map_out}}
     end
+  end
+
+  @impl true
+  def handle_cast({:add_lic, {id, digAllowed}}, {q_lic, map_out}) do
+    # Logger.debug ">>> add_lic #{inspect {id, digAllowed}}"
+    new_q_lic = 1..digAllowed
+    |> Enum.reduce(q_lic, fn(_, acc)->
+      :queue.in({id, digAllowed}, acc)
+    end)
+
+    {:noreply, {new_q_lic, map_out}}
+  end
+  def get_lic_task() do
+    %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => id} = get_lic()
+    add_license({id, digAllowed})
   end
 
   defp get_lic() do
