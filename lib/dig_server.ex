@@ -8,22 +8,13 @@ defmodule DigServer do
   end
 
   def do_dig(x, y, lvl, count) do
-    dig_max = Worki.cnt_read(:dig_max)
-    dig_count = Worki.cnt_read(:dig_count)
-
-    case dig_count>=dig_max do
-      true ->
+    case :poolboy.checkout(:dig_pool, false) do
+      :full ->
         Process.sleep(100)
         do_dig(x, y, lvl, count)
-      false ->
-        case :poolboy.checkout(:dig_pool, false) do
-          :full ->
-            Process.sleep(100)
-            do_dig(x, y, lvl, count)
-          worker_pid ->
-            Worki.cnt_inc(:dig_count)
-            GenServer.cast(worker_pid, {:do_dig, x, y, lvl, count})
-        end
+      worker_pid ->
+        Worki.cnt_inc(:dig_count)
+        GenServer.cast(worker_pid, {:do_dig, x, y, lvl, count})
     end
   end
 

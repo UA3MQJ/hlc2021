@@ -43,11 +43,8 @@ defmodule GameServer do
     digged = Worki.cnt_read(:digged)
     speed = digged - prev
 
-    dig_max = Worki.cnt_read(:dig_max)
-
-    Logger.debug ">>> speed=#{speed/10000} dig_max=#{dig_max-1}"
+    Logger.debug ">>> speed=#{speed/10000}"
     Process.sleep(10000)
-    Worki.cnt_inc(:dig_max)
 
     speedometer(digged)
   end

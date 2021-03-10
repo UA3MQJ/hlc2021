@@ -45,9 +45,6 @@ defmodule Worki.Application do
     :persistent_term.put(:url, "http://#{address}:8000")
     :persistent_term.put(:rdy, false)
 
-    Worki.cnt_new(:dig_max)
-    Worki.cnt_inc(:dig_max)
-
     Worki.cnt_new(:dig_count)
 
     Logger.info ("Start server... http://#{address}:8000 ")
