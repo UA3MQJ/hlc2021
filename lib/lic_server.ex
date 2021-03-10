@@ -34,6 +34,7 @@ defmodule LicServer do
     q_lic = 1..@active_lic_count
       |> Enum.reduce(:queue.new(), fn(_, acc)->
         %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => id} = get_lic()
+        # Logger.debug "*** #{id}"
         # id, digAllowed, gave, returned
         new_acc = 1..digAllowed
         |> Enum.reduce(acc, fn(_, acc)->
@@ -75,16 +76,19 @@ defmodule LicServer do
 
     case count==(lic_used_count+1) do
       true ->
-        %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => id} = get_lic()
+        %{"digAllowed" => digAllowed, "digUsed" => _digUsed, "id" => new_id} = get_lic()
+        # Logger.debug "<<< #{id} [#{lic_used_count+1}/#{count}]"
+        # Logger.debug "*** #{new_id}"
         # id, digAllowed, gave, returned
         new_q_lic = 1..digAllowed
         |> Enum.reduce(q_lic, fn(_, acc)->
-          :queue.in({id, digAllowed}, acc)
+          :queue.in({new_id, digAllowed}, acc)
         end)
 
         # Logger.debug ">>>> get new license new_state=#{inspect {new_q_lic, new_map_out}}"
         {:noreply, {new_q_lic, new_map_out}}
       false ->
+        # Logger.debug "<<< #{id} [#{lic_used_count+1}/#{count}]"
         # Logger.debug ">>>> new_state=#{inspect {q_lic, new_map_out}}"
         {:noreply, {q_lic, new_map_out}}
     end

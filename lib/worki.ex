@@ -10,15 +10,17 @@ defmodule Worki do
         Process.sleep(100)
         do_dig(x, y, lvl, count)
       {lic_id, _} = lic ->
-        # Logger.debug ">>> do_dig  lic_id=#{lic_id}"
+        # Logger.debug ">>> #{lic_id}"
         res = dig(lic_id, x, y, lvl)
         # Logger.debug ">>> do_dig  res=#{inspect res}\r\n x=#{inspect x} y=#{inspect y} lvl=#{inspect lvl} count=#{inspect count}"
         case res do
           {:ok, %{status_code: 404}} -> # копаем дальше
             LicServer.return_license(lic)
+            # Logger.debug "<<< #{lic_id}"
             do_dig(x, y, lvl+1, count)
           {:ok, %{status_code: 200} = response} -> # выкопали
             LicServer.return_license(lic)
+            # Logger.debug "<<< #{lic_id}"
             case Jason.decode(response.body) do
               {:ok, [treasure]}  ->
                 treasure2cash(treasure)
@@ -136,6 +138,7 @@ defmodule Worki do
     # 157724 - новый сервер лицензий кусками по 16, 10dig(сервер 301999)
     # 178979 - --//-- 50dig                              (сервер 297386)
     # 19107-12s lic_queues кусками по 16                 (сервер 1)
+    # 18206 lic_que fix                                  (сервер 207868)
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->
