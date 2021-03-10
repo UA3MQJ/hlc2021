@@ -143,6 +143,7 @@ defmodule Worki do
     # ?      --//-- + speedometer                        (сервер 476673)
     # 20642-12s 30 dig_workers                           (сервер 470312)
     # 20853-12s 10 dig_workers                           (сервер 463204)
+    # ? 16 dig_workers                                   (сервер 472751)
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->
