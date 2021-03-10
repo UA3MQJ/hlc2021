@@ -140,6 +140,7 @@ defmodule Worki do
     # 19107-12s lic_queues кусками по 16                 (сервер 1)
     # 18206 lic_que fix                                  (сервер 207868)
     # 20585 lic_que + async_new lic                      (сервер 466632)
+    # ?      --//-- + speedometer                        (сервер 476673)
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->

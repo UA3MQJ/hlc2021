@@ -24,7 +24,7 @@ defmodule GameServer do
     :persistent_term.put(:rdy, true)
     :timer.sleep(100)
     Task.start(Worki, :game, [])
-    # Task.start(GameServer, :speedometer, [0])
+    Task.start(GameServer, :speedometer, [0])
 
 
     {:noreply, state}
@@ -42,8 +42,12 @@ defmodule GameServer do
   def speedometer(prev) do
     digged = Worki.cnt_read(:digged)
     speed = digged - prev
-    Logger.debug ">>> speed=#{speed/10000}"
+
+    dig_max = Worki.cnt_read(:dig_max)
+
+    Logger.debug ">>> speed=#{speed/10000} dig_max=#{dig_max-1}"
     Process.sleep(10000)
+    Worki.cnt_inc(:dig_max)
 
     speedometer(digged)
   end
