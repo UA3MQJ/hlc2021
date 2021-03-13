@@ -10,7 +10,7 @@ defmodule Worki.Application do
 
   @dig_pool [
     name: :dig_pool,
-    size: 30,
+    size: 16,
     max_overflow: 0
   ]
 
@@ -22,7 +22,7 @@ defmodule Worki.Application do
 
   @xch_pool [
     name: :xch_pool,
-    size: 4,
+    size: 8,
     max_overflow: 0
   ]
 

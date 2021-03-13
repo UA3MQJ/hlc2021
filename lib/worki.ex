@@ -156,9 +156,9 @@ defmodule Worki do
     # ? 4 cash-xch workers 30 dig                        (ceрвер 488102)
     # ? 2 cash-xch workers 30 dig                        (ceрвер 481535)
     # ? 4 cash-xch workers 30 dig                        (ceрвер 440467)
+    # ? 8 cash-xch workers 16 dig                        (ceрвер 457317)
+    # ? 4 cash-xch workers 30 dig                        (ceрвер 420879)
     # ? 8 cash-xch workers 16 dig                        (ceрвер )
-    # ? 4 cash-xch workers 30 dig                        (ceрвер )
-
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->
