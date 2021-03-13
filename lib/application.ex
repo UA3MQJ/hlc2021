@@ -10,13 +10,19 @@ defmodule Worki.Application do
 
   @dig_pool [
     name: :dig_pool,
-    size: 16,
+    size: 30,
     max_overflow: 0
   ]
 
   @test_pool [
     name: :test_pool,
     size: 2,
+    max_overflow: 0
+  ]
+
+  @xch_pool [
+    name: :xch_pool,
+    size: 4,
     max_overflow: 0
   ]
 
@@ -38,6 +44,15 @@ defmodule Worki.Application do
     ]
   end
 
+  defp xch_pool_config() do
+    [
+      {:name, {:local, @xch_pool[:name]}},
+      {:worker_module, CashXchServer},
+      {:size, @xch_pool[:size]},
+      {:max_overflow, @xch_pool[:max_overflow]}
+    ]
+  end
+
   def start(_type, _args) do
     # Logger.info ("Start server...")
 
@@ -46,6 +61,7 @@ defmodule Worki.Application do
     :persistent_term.put(:rdy, false)
 
     Worki.cnt_new(:dig_count)
+    Worki.cnt_new(:xch_count)
 
     Logger.info ("Start server... http://#{address}:8000 ")
 
@@ -53,7 +69,8 @@ defmodule Worki.Application do
       {LicServer, []},
       {CashServer, []},
       {WRServer, []},
-      :poolboy.child_spec(@test_pool[:name], test_pool_config(), []),
+      # :poolboy.child_spec(@test_pool[:name], test_pool_config(), []),
+      :poolboy.child_spec(@xch_pool[:name], xch_pool_config(), []),
       :poolboy.child_spec(@dig_pool[:name], dig_pool_config(), []),
       {GameServer, []},
     ]

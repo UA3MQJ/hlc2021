@@ -23,8 +23,9 @@ defmodule Worki do
             # Logger.debug "<<< #{lic_id}"
             case Jason.decode(response.body) do
               {:ok, [treasure]}  ->
-                treasure2cash(treasure)
                 Worki.cnt_inc(:digged)
+                # treasure2cash(treasure)
+                CashXchServer.do_exchange(treasure)
                 # Logger.debug ">>> do_dig  treasure=#{inspect treasure}"
                 do_dig(x, y, lvl+1, count-1)
               _else ->
@@ -144,6 +145,20 @@ defmodule Worki do
     # 20642-12s 30 dig_workers                           (сервер 470312)
     # 20853-12s 10 dig_workers                           (сервер 463204)
     # ? 16 dig_workers                                   (сервер 472751)
+    # 21225-12s 16 cash-xch workers                      (ceрвер 469308)
+    # ? 8 cash-xch workers                               (ceрвер 494294)
+    # ? 4 cash-xch workers                               (ceрвер 447250)
+    # ? 2 cash-xch workers                               (ceрвер 485599)
+    # ? 1 cash-xch workers                               (ceрвер 437747)
+    # ? 8 cash-xch workers 16 dig                        (ceрвер 484284)
+    # ? 8 cash-xch workers 8 dig                         (ceрвер 460858)
+    # ? 8 cash-xch workers 30 dig                        (ceрвер 465385)
+    # ? 4 cash-xch workers 30 dig                        (ceрвер 488102)
+    # ? 2 cash-xch workers 30 dig                        (ceрвер 481535)
+    # ? 4 cash-xch workers 30 dig                        (ceрвер 440467)
+    # ? 8 cash-xch workers 16 dig                        (ceрвер )
+    # ? 4 cash-xch workers 30 dig                        (ceрвер )
+
 
     Enum.map(0..218, fn(x) ->
       Enum.map(0..3499, fn(y) ->
@@ -212,11 +227,11 @@ defmodule Worki do
             CashServer.put_cash(body)
             :ok
           _else ->
-            # :timer.sleep(100)
+            :timer.sleep(100)
             cash(treasure)
         end
       _some_other_error->
-        # :timer.sleep(100)
+        :timer.sleep(100)
         cash(treasure)
     end
   end

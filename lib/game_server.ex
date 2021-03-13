@@ -24,7 +24,7 @@ defmodule GameServer do
     :persistent_term.put(:rdy, true)
     :timer.sleep(100)
     Task.start(Worki, :game, [])
-    Task.start(GameServer, :speedometer, [0])
+    # Task.start(GameServer, :speedometer, [0])
 
 
     {:noreply, state}
