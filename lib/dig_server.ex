@@ -23,6 +23,7 @@ defmodule DigServer do
   def init(_state) do
     # Logger.info "DigServer init pid=#{inspect self()}"
     Worki.cnt_new(:digged)
+    Worki.cnt_new(:explored)
     {:ok, nil}
   end
 

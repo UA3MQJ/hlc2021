@@ -50,6 +50,9 @@ defmodule Worki do
     []
   end
   def r_explore(x, x, y, count) do  # x1==x2
+    Enum.map(1..count, fn(_)->
+      Worki.cnt_inc(:explored)
+    end)
     [{x, x, y, count}]
   end
   def r_explore(x1, x2, y, count) do
@@ -159,19 +162,50 @@ defmodule Worki do
     # ? 8 cash-xch workers 16 dig                        (ceрвер 457317)
     # ? 4 cash-xch workers 30 dig                        (ceрвер 420879)
     # ? 8 cash-xch workers 16 dig                        (ceрвер 486046)
+    # async r_explore 1                                  (ceрвер 484753)
+    # async r_explore 2                                  (ceрвер 527432)
+    # async r_explore 4                                  (ceрвер 578440)
+    # async r_explore 8                                  (ceрвер 53471)
+    # async r_explore 16                                 (ceрвер 53526)
+    # async r_explore 5                                  (ceрвер 588359)
+    # async r_explore 6                                  (ceрвер 596287)
+    # async r_explore 7                                  (ceрвер 595382)
+    # async r_explore 4                                  (ceрвер 577708)
+    # async r_explore 8                                  (ceрвер 607261)
+
 
     Enum.map(0..218, fn(x) ->
-      Enum.map(0..3499, fn(y) ->
+      # Enum.map(0..3499, fn(y) ->
+      Enum.map(0..435, fn(y) ->
 
         x1=x*16
         x2=x*16+15
 
-        list = Worki.r_explore(x1,x2,y)
+        # list = Worki.r_explore(x1,x2,y)
 
         # list1 = Worki.r_explore(x1,x2,y*2)
         # list2 = Worki.r_explore(x1,x2,y*2 + 1)
+        ref1 = Task.async(Worki, :r_explore, [x1,x2,y*8])
+        ref2 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 1])
+        ref3 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 2])
+        ref4 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 3])
+        ref5 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 4])
+        ref6 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 5])
+        ref7 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 6])
+        ref8 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 7])
 
-        # list = list1 ++ list2 ++ list3 ++ list4
+
+        list1 = Task.await(ref1, 120_000)
+        list2 = Task.await(ref2, 120_000)
+        list3 = Task.await(ref3, 120_000)
+        list4 = Task.await(ref4, 120_000)
+        list5 = Task.await(ref5, 120_000)
+        list6 = Task.await(ref6, 120_000)
+        list7 = Task.await(ref7, 120_000)
+        list8 = Task.await(ref8, 120_000)
+
+        list = list1 ++ list2 ++ list3 ++ list4  ++ list5 ++ list6 ++ list7 ++ list8
+            #  ++ list9 ++ list10 ++ list11 ++ list12 ++ list13 ++ list14 ++ list15 ++ list16
 
         # последовательно
         list
