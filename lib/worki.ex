@@ -25,7 +25,7 @@ defmodule Worki do
               {:ok, [treasure]}  ->
                 Worki.cnt_inc(:digged)
                 # treasure2cash(treasure)
-                CashXchServer.do_exchange(treasure)
+                CashXchServer.do_exchange(treasure, lvl)
                 # Logger.debug ">>> do_dig  treasure=#{inspect treasure}"
                 do_dig(x, y, lvl+1, count-1)
               _else ->
@@ -172,6 +172,7 @@ defmodule Worki do
     # async r_explore 7                                  (ceрвер 595382)
     # async r_explore 4                                  (ceрвер 577708)
     # async r_explore 8                                  (ceрвер 607261)
+    # не обмениваю призы с 1го уровня                    (сервер 625226)
 
 
     Enum.map(0..218, fn(x) ->
