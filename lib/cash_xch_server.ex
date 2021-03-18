@@ -7,9 +7,9 @@ defmodule CashXchServer do
     GenServer.start_link(__MODULE__, [])
   end
 
-  def do_exchange(_treasure, 1) do
-    :ok
-  end
+  # def do_exchange(_treasure, 1) do
+  #   :ok
+  # end
 
   def do_exchange(treasure, lvl) do
     case :poolboy.checkout(:xch_pool, false) do
