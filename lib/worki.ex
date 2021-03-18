@@ -187,7 +187,11 @@ defmodule Worki do
     # не продавать 1 уровень 10ms 10expl  20dig  10xch   (       615228)
     # не продавать 1 уровень 10ms 10expl  16dig  4xch    (       618998)
     # не продавать 1 уровень 10ms 10expl  8dig  4xch     (       0)
-    # не продавать 1 уровень 10ms 10expl  16dig  8xch    (       )
+    # не продавать 1 уровень 10ms 10expl  16dig  8xch    (       620415)
+    # 1..12                                              (       623919)
+    # 1..14                                              (       574231)
+    # 1..16                                              (       0)
+    # вернулся к зависимому explore-dig                  (       )
 
     Enum.map(0..218, fn(x) ->
       # Enum.map(0..3499, fn(y) ->
@@ -227,20 +231,21 @@ defmodule Worki do
             #  ++ list9 ++ list10 ++ list11 ++ list12 ++ list13 ++ list14 ++ list15 ++ list16
 
 
-        list
-        |> Enum.map(fn({tx, _, ty, amount}) ->
-          CoordsServer.put_coords(tx, ty, amount)
-        end)
-
-        sleep_to_big()
-
-        # # последовательно
+        # независимо
         # list
         # |> Enum.map(fn({tx, _, ty, amount}) ->
-        #   # do_dig(tx, ty, 1, amount)
-        #   # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
-        #   DigServer.do_dig(tx, ty, 1, amount)
+        #   CoordsServer.put_coords(tx, ty, amount)
         # end)
+
+        # sleep_to_big()
+
+        # последовательно
+        list
+        |> Enum.map(fn({tx, _, ty, amount}) ->
+          # do_dig(tx, ty, 1, amount)
+          # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
+          DigServer.do_dig(tx, ty, 1, amount)
+        end)
 
         # # вообще по очереди
         # amount = clean_explore(x, y, 1, 1)
