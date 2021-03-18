@@ -10,7 +10,7 @@ defmodule TestServer do
   def get_license() do
     case :poolboy.checkout(:test_pool, false) do
       :full ->
-        Process.sleep(100)
+        Process.sleep(10)
         get_license()
       worker_pid ->
         GenServer.cast(worker_pid, :get_license)

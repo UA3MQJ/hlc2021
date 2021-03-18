@@ -10,7 +10,7 @@ defmodule DigServer do
   def do_dig() do
     case :poolboy.checkout(:dig_pool, false) do
       :full ->
-        Process.sleep(100)
+        Process.sleep(10)
         do_dig()
       worker_pid ->
         GenServer.cast(worker_pid, :do_dig)
@@ -20,7 +20,7 @@ defmodule DigServer do
   def do_dig(x, y, lvl, count) do
     case :poolboy.checkout(:dig_pool, false) do
       :full ->
-        Process.sleep(100)
+        Process.sleep(10)
         do_dig(x, y, lvl, count)
       worker_pid ->
         Worki.cnt_inc(:dig_count)

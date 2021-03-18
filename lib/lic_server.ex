@@ -47,7 +47,7 @@ defmodule LicServer do
     case :persistent_term.get(:rdy) do
       true -> :ok
       false ->
-        Process.sleep(100)
+        Process.sleep(10)
         wait_health_check()
     end
   end

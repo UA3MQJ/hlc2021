@@ -7,7 +7,7 @@ defmodule Worki do
 
     case LicServer.get_license() do
       :no_lics ->
-        Process.sleep(100)
+        Process.sleep(10)
         do_dig(x, y, lvl, count)
       {lic_id, _} = lic ->
         # Logger.debug ">>> #{lic_id}"
@@ -179,10 +179,19 @@ defmodule Worki do
     # не продавать 3 уровень                             (       609771)
     # не продавать 3 уровень                             (       623390)
     # все продавать                                      (       608740)
+    # не продавать 1 уровень 10ms 8expl                  (       623064)
+    # не продавать 1 уровень 10ms 4expl                  (       601839)
+    # не продавать 1 уровень 10ms 2expl                  (       26292)
+    # не продавать 1 уровень 10ms 10expl  16dig  8xch    (       625929)
+    # не продавать 1 уровень 10ms 10expl  20dig  8xch    (       621084)
+    # не продавать 1 уровень 10ms 10expl  20dig  10xch   (       615228)
+    # не продавать 1 уровень 10ms 10expl  16dig  4xch    (       618998)
+    # не продавать 1 уровень 10ms 10expl  8dig  4xch     (       0)
+    # не продавать 1 уровень 10ms 10expl  16dig  8xch    (       )
 
     Enum.map(0..218, fn(x) ->
       # Enum.map(0..3499, fn(y) ->
-      Enum.map(0..435, fn(y) ->
+      Enum.map(0..340, fn(y) ->
 
         x1=x*16
         x2=x*16+15
@@ -191,26 +200,30 @@ defmodule Worki do
 
         # list1 = Worki.r_explore(x1,x2,y*2)
         # list2 = Worki.r_explore(x1,x2,y*2 + 1)
-        ref1 = Task.async(Worki, :r_explore, [x1,x2,y*8])
-        ref2 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 1])
-        ref3 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 2])
-        ref4 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 3])
-        ref5 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 4])
-        ref6 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 5])
-        ref7 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 6])
-        ref8 = Task.async(Worki, :r_explore, [x1,x2,y*8 + 7])
+        ref1 = Task.async(Worki, :r_explore, [x1,x2,y*10])
+        ref2 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 1])
+        ref3 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 2])
+        ref4 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 3])
+        ref5 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 4])
+        ref6 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 5])
+        ref7 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 6])
+        ref8 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 7])
+        ref9 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 8])
+        ref10 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 9])
 
 
-        list1 = Task.await(ref1, 120_000)
-        list2 = Task.await(ref2, 120_000)
-        list3 = Task.await(ref3, 120_000)
-        list4 = Task.await(ref4, 120_000)
-        list5 = Task.await(ref5, 120_000)
-        list6 = Task.await(ref6, 120_000)
-        list7 = Task.await(ref7, 120_000)
-        list8 = Task.await(ref8, 120_000)
+        list1 = Task.await(ref1, 150_000)
+        list2 = Task.await(ref2, 150_000)
+        list3 = Task.await(ref3, 150_000)
+        list4 = Task.await(ref4, 150_000)
+        list5 = Task.await(ref5, 150_000)
+        list6 = Task.await(ref6, 150_000)
+        list7 = Task.await(ref7, 150_000)
+        list8 = Task.await(ref8, 150_000)
+        list9 = Task.await(ref9, 150_000)
+        list10 = Task.await(ref10, 150_000)
 
-        list = list1 ++ list2 ++ list3 ++ list4  ++ list5 ++ list6 ++ list7 ++ list8
+        list = list1 ++ list2 ++ list3 ++ list4 ++ list5 ++ list6 ++ list7 ++ list8 ++ list9 ++ list10
             #  ++ list9 ++ list10 ++ list11 ++ list12 ++ list13 ++ list14 ++ list15 ++ list16
 
 
