@@ -66,6 +66,7 @@ defmodule Worki.Application do
     Logger.info ("Start server... http://#{address}:8000 ")
 
     children = [
+      {CoordsServer, []},
       {LicServer, []},
       {CashServer, []},
       {WRServer, []},

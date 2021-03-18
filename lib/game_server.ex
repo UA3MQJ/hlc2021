@@ -25,6 +25,10 @@ defmodule GameServer do
     :timer.sleep(100)
     Task.start(Worki, :game, [])
     Task.start(GameServer, :speedometer, [0])
+    1..10
+      |> Enum.map(fn(_) ->
+        DigServer.do_dig()
+      end)
 
 
     {:noreply, state}

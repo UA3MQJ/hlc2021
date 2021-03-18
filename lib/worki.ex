@@ -173,6 +173,8 @@ defmodule Worki do
     # async r_explore 4                                  (ceрвер 577708)
     # async r_explore 8                                  (ceрвер 607261)
     # не обмениваю призы с 1го уровня                    (сервер 625226)
+    # эксперимент с количеством explore - explored=60353
+    # отвязанные друг от друга explore-dig               (сервер 624044)
 
 
     Enum.map(0..218, fn(x) ->
@@ -208,13 +210,21 @@ defmodule Worki do
         list = list1 ++ list2 ++ list3 ++ list4  ++ list5 ++ list6 ++ list7 ++ list8
             #  ++ list9 ++ list10 ++ list11 ++ list12 ++ list13 ++ list14 ++ list15 ++ list16
 
-        # последовательно
+
         list
         |> Enum.map(fn({tx, _, ty, amount}) ->
-          # do_dig(tx, ty, 1, amount)
-          # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
-          DigServer.do_dig(tx, ty, 1, amount)
+          CoordsServer.put_coords(tx, ty, amount)
         end)
+
+        sleep_to_big()
+
+        # # последовательно
+        # list
+        # |> Enum.map(fn({tx, _, ty, amount}) ->
+        #   # do_dig(tx, ty, 1, amount)
+        #   # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
+        #   DigServer.do_dig(tx, ty, 1, amount)
+        # end)
 
         # # вообще по очереди
         # amount = clean_explore(x, y, 1, 1)
@@ -228,6 +238,18 @@ defmodule Worki do
 
     Logger.info("Complete...")
     :ok
+  end
+
+  def sleep_to_big() do
+    count = CoordsServer.get_coord_count()
+    case count > 100 do
+      true ->
+        # Logger.debug ">>> explorer - im sleep"
+        Process.sleep(10)
+        sleep_to_big()
+      false ->
+        :ok
+    end
   end
 
   def treasure2cash(treasure) do

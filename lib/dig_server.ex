@@ -7,6 +7,16 @@ defmodule DigServer do
     GenServer.start_link(__MODULE__, [])
   end
 
+  def do_dig() do
+    case :poolboy.checkout(:dig_pool, false) do
+      :full ->
+        Process.sleep(100)
+        do_dig()
+      worker_pid ->
+        GenServer.cast(worker_pid, :do_dig)
+    end
+  end
+
   def do_dig(x, y, lvl, count) do
     case :poolboy.checkout(:dig_pool, false) do
       :full ->
@@ -24,6 +34,7 @@ defmodule DigServer do
     # Logger.info "DigServer init pid=#{inspect self()}"
     Worki.cnt_new(:digged)
     Worki.cnt_new(:explored)
+
     {:ok, nil}
   end
 
@@ -36,4 +47,20 @@ defmodule DigServer do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_cast(:do_dig, state) do
+    do_dig_always()
+
+    {:noreply, state}
+  end
+
+  def do_dig_always() do
+    case CoordsServer.get_coord() do
+      {x, y, count} ->
+        do_dig(x, y, 1, count)
+      _else ->
+        Process.sleep(10)
+    end
+    do_dig_always()
+  end
 end
