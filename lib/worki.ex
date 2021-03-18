@@ -191,7 +191,10 @@ defmodule Worki do
     # 1..12                                              (       623919)
     # 1..14                                              (       574231)
     # 1..16                                              (       0)
-    # вернулся к зависимому explore-dig                  (       )
+    # вернулся к зависимому explore-dig                  (       624258)
+    # опять отдельно 8                                   (       566259)
+    # опять отдельно 10                                  (       0)
+    # опять отдельно 10 еще раз                          (       )
 
     Enum.map(0..218, fn(x) ->
       # Enum.map(0..3499, fn(y) ->
@@ -232,20 +235,20 @@ defmodule Worki do
 
 
         # независимо
-        # list
-        # |> Enum.map(fn({tx, _, ty, amount}) ->
-        #   CoordsServer.put_coords(tx, ty, amount)
-        # end)
-
-        # sleep_to_big()
-
-        # последовательно
         list
         |> Enum.map(fn({tx, _, ty, amount}) ->
-          # do_dig(tx, ty, 1, amount)
-          # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
-          DigServer.do_dig(tx, ty, 1, amount)
+          CoordsServer.put_coords(tx, ty, amount)
         end)
+
+        sleep_to_big()
+
+        # # последовательно
+        # list
+        # |> Enum.map(fn({tx, _, ty, amount}) ->
+        #   # do_dig(tx, ty, 1, amount)
+        #   # Task.start(Worki, :do_dig, [tx, ty, 1, amount])
+        #   DigServer.do_dig(tx, ty, 1, amount)
+        # end)
 
         # # вообще по очереди
         # amount = clean_explore(x, y, 1, 1)
