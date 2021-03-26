@@ -199,6 +199,7 @@ defmodule Worki do
     # 14 в строке                                        (       648747)
     # 17 в строке                                        (       628525)
     # 14 в строке                                        (       648824)
+    # explore почередовал по 5                           (       626772)
 
 
     Enum.map(0..230, fn(x) ->
@@ -217,18 +218,19 @@ defmodule Worki do
         ref3 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 2])
         ref4 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 3])
         ref5 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 4])
-        ref6 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 5])
-        ref7 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 6])
-        ref8 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 7])
-        ref9 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 8])
-        ref10 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 9])
-
 
         list1 = Task.await(ref1, 150_000)
         list2 = Task.await(ref2, 150_000)
         list3 = Task.await(ref3, 150_000)
         list4 = Task.await(ref4, 150_000)
         list5 = Task.await(ref5, 150_000)
+
+        ref6 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 5])
+        ref7 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 6])
+        ref8 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 7])
+        ref9 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 8])
+        ref10 = Task.async(Worki, :r_explore, [x1,x2,y*10 + 9])
+
         list6 = Task.await(ref6, 150_000)
         list7 = Task.await(ref7, 150_000)
         list8 = Task.await(ref8, 150_000)
